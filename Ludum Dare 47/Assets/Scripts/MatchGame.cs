@@ -37,6 +37,7 @@ public class MatchGame : Game
     { Instance = this; }
 
     [SerializeField] private GameObject MatchTilePrefab;
+    [SerializeField] private GameObject StartButton;
 
     List<MatchTile> Tiles = new List<MatchTile>();
     MatchTile _lastUncoveredTile;
@@ -46,24 +47,6 @@ public class MatchGame : Game
     int _targetScore;
     int _currentScore;
 
-    void Start()
-    {
-        StartCoroutine(Test());
-    }
-
-    IEnumerator Test()
-    {
-        yield return new WaitForEndOfFrame();
-
-        GenerateGame();
-        GenerateNextLevel();
-        //for (int i = 0; i < GameConstants.MatchGameStageInfo.Count; i++)
-        //{
-        //    GenerateNextLevel();
-        //    yield return new WaitForSeconds(0.7f);
-        //}
-    }
-
     public override void GenerateGame()
     {
         CleanGrid();
@@ -72,6 +55,7 @@ public class MatchGame : Game
         _targetScore = 0;
         _currentScore = 0;
         _matchState = new TileMatchState();
+        StartButton.SetActive(true);
     }
 
     public void GenerateNextLevel()
@@ -79,10 +63,12 @@ public class MatchGame : Game
         CleanGrid();
 
         _currentStage++;
+        Debug.LogError("Generating stage " + _currentStage);
 
         if(_currentStage == GameConstants.MatchGameStageInfo.Count)
         {
-            EndGame();
+            HasCompletedGame = true;
+            GameController.Instance.EndGame();
             return;
         }
 
@@ -205,5 +191,22 @@ public class MatchGame : Game
             second.Reset();
             _lastUncoveredTile = second;
         }
+    }
+
+    public void OnStartPressed()
+    {
+        StartButton.SetActive(false);
+        GenerateNextLevel();
+    }
+
+    public void OnQuitPressed()
+    {
+        GameController.Instance.EndGame();
+    }
+
+    public override void OnGameEnd()
+    {
+        if (HasCompletedGame)
+            PlayerPrefs.SetInt("MatchGame", 1);
     }
 }

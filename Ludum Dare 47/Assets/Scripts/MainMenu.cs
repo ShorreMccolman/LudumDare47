@@ -11,8 +11,8 @@ public class MainMenu : MonoBehaviour
         Instance = this;
     }
 
-    public void PlayGame(int gameID)
+    public void OnPlayGamePressed(int gameID)
     {
-        SceneManager.LoadScene(gameID);
+        GameController.Instance.StartNewGame(gameID);
     }
 }
